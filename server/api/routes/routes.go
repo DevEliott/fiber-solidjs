@@ -7,7 +7,16 @@ import (
 )
 
 func Setup(r fiber.Router) {
-	setupPlayerRoutes(r.Group("/player"))
+	r.Static("/", "../client/dist")
+
+	api := r.Group("/api")
+	setupPlayerRoutes(api.Group("/player"))
+	api.Use(func(c *fiber.Ctx) error {
+		return fiber.ErrNotFound
+	})
+	r.Use(func(c *fiber.Ctx) error {
+		return c.Status(fiber.StatusNotFound).SendFile("../404.html")
+	})
 }
 
 func setupPlayerRoutes(r fiber.Router) {

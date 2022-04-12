@@ -14,13 +14,6 @@ import (
 func main() {
 	app := fiber.New()
 	app.Use(cors.New(), logger.New(), etag.New(), recover.New())
-
-	routes.Setup(app.Group("/api"))
-
-	app.Static("/", "../client/dist")
-	app.Use(func(c *fiber.Ctx) error {
-		return c.Status(fiber.StatusNotFound).SendFile("../404.html")
-	})
-
+	routes.Setup(app)
 	log.Fatal(app.Listen(":8080"))
 }
