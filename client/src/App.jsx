@@ -5,6 +5,7 @@ import { createSignal } from 'solid-js';
 function App() {
   const [res, setRes] = createSignal('');
   const [input, setInput] = createSignal('');
+  const [id, setId] = createSignal('');
   const fetchAPI = () => {
     fetch('http://localhost:8080/api')
       .then((res) => res.json())
@@ -15,12 +16,18 @@ function App() {
     console.log('WS connection opened');
   };
   ws.onmessage = (ev) => {
-    setRes(ev.data);
+    const payload = JSON.parse(ev.data);
+    console.log(payload);
+    if (payload.action === 'ID') {
+      setId(payload.data);
+    } else setRes(payload);
   };
 
   const sendWS = (e) => {
     if (e.key === 'Enter') {
-      ws.send(JSON.stringify({ msg: input() }));
+      ws.send(
+        JSON.stringify({ data: input(), action: 'Message', senderId: id() }),
+      );
       setInput('');
     }
   };

@@ -21,14 +21,14 @@ func (c *Client) StartListening() {
 		c.Done <- true
 	}()
 
-	var message Message
+	var packet Packet
 	for {
-		if err := c.Ws.ReadJSON(&message); err != nil {
+		if err := c.Ws.ReadJSON(&packet); err != nil {
 			log.Println("read:", err)
 			HandleDisconnect(c)
 			break
 		}
-		HandleMessage(c, message)
+		HandlePacket(c, packet)
 	}
 }
 
@@ -41,6 +41,5 @@ func HandleDisconnect(c *Client) {
 			break
 		}
 	}
-	log.Println("Clients count:", len(Clients))
 	c.Ws.Close()
 }

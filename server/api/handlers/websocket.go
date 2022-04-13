@@ -10,17 +10,24 @@ import (
 )
 
 func WS() fiber.Handler {
-	return ws.New(HandleNewConnection)
+	return ws.New(HandleWSConnection)
 }
 
-func HandleNewConnection(conn *ws.Conn) {
+func HandleWSConnection(conn *ws.Conn) {
+	log.Println("Len before adding:", len(websocket.Clients))
 	c := &websocket.Client{
 		Ws:   conn,
 		ID:   uuid.NewString(),
 		Done: make(chan bool),
 	}
 	websocket.Clients = append(websocket.Clients, c)
-	log.Println(len(websocket.Clients))
+	log.Println("Len after adding:", len(websocket.Clients))
+	log.Println("Clients", websocket.Clients)
+	m := websocket.Packet{
+		Action: websocket.ID,
+		Data:   c.ID,
+	}
+	m.BroadCastTo(c)
 	go c.StartListening()
 	<-c.Done
 }

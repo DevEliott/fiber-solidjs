@@ -12,7 +12,9 @@ import (
 )
 
 func main() {
-	app := fiber.New()
+	app := fiber.New(fiber.Config{
+		Prefork: false,
+	})
 	app.Use(cors.New(), logger.New(), etag.New(), recover.New())
 	routes.Setup(app)
 	log.Fatal(app.Listen(":8080"))
