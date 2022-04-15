@@ -16,18 +16,12 @@ func WS() fiber.Handler {
 func HandleWSConnection(conn *ws.Conn) {
 	log.Println("Len before adding:", len(websocket.Clients))
 	c := &websocket.Client{
-		Ws:   conn,
-		ID:   uuid.NewString(),
-		Done: make(chan bool),
+		Ws: conn,
+		ID: uuid.NewString(),
 	}
+	websocket.GeneralPubSub.AddClient(c)
 	websocket.Clients = append(websocket.Clients, c)
 	log.Println("Len after adding:", len(websocket.Clients))
 	log.Println("Clients", websocket.Clients)
-	m := websocket.Packet{
-		Action: websocket.ID,
-		Data:   c.ID,
-	}
-	m.BroadCastTo(c)
-	go c.StartListening()
-	<-c.Done
+	c.StartListening()
 }
